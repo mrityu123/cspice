@@ -1,43 +1,56 @@
-LEX		= flex
-YACC		= bison
-LEX_FLAG  = -Pparse
-YACC_FLAG = -d -p parse
+LEX        = flex
+YACC       = bison
+LEX_FLAG   = -Pparse
+YACC_FLAG  = -d -p parse
 
-CXX       = g++
-#CFLAGS    = -g -Iinclude
-CFLAGS	 = -O3 -Iinclude
-CSRCS     = $(wildcard src/*.cpp)
-CHDRS     = $(wildcard include/*.h)
-#COBJS     = $(addsuffix .o, $(basename $(CSRCS)))
+CXX        = g++
+CFLAGS     = -O3 -Iinclude
 
-COBJS     = obj/main.o obj/simulator.o obj/circuit.o obj/utils.o obj/parseLEX.o obj/parseYY.o
+OBJDIR     = obj
+BINDIR     = bin
 
-all : bin/cspice
+CSRCS      = $(wildcard src/*.cpp)
+CHDRS      = $(wildcard include/*.h)
+
+COBJS      = $(OBJDIR)/main.o \
+             $(OBJDIR)/simulator.o \
+             $(OBJDIR)/circuit.o \
+             $(OBJDIR)/utils.o \
+             $(OBJDIR)/parseLEX.o \
+             $(OBJDIR)/parseYY.o
+
+all: $(BINDIR)/cspice
+
+# Ensure directories exist
+$(OBJDIR):
+    mkdir -p $(OBJDIR)
+
+$(BINDIR):
+    mkdir -p $(BINDIR)
 
 src/parseLEX.cpp: src/parser.l src/parseYY.hpp
-	@echo "> lexing: $<"
-	@$(LEX) $(LEX_FLAG) -o$@ $<
+    @echo "> lexing: $<"
+    @$(LEX) $(LEX_FLAG) -o$@ $<
 
 src/parseYY.cpp src/parseYY.hpp: src/parser.y
-	@echo "> yaccing: $<"
-	@$(YACC) $(YACC_FLAG) -o parseYY.cpp $<
-	@mv parseYY.cpp src/parseYY.cpp
-	@mv parseYY.hpp src/parseYY.hpp
-	@ln -sf src/parseYY.hpp include/parseYY.hpp
+    @echo "> yaccing: $<"
+    @$(YACC) $(YACC_FLAG) -o parseYY.cpp $<
+    @mv parseYY.cpp src/parseYY.cpp
+    @mv parseYY.hpp src/parseYY.hpp
+    @ln -sf src/parseYY.hpp include/parseYY.hpp
 
-obj/parseYY.o : src/parser.cpp
+# Final link step depends on bin directory
+$(BINDIR)/cspice: $(COBJS) | $(BINDIR)
+    $(CXX) $(CFLAGS) -o $@ $(COBJS)
 
-bin/cspice : $(COBJS)
-	$(CXX) $(CFLAGS) -o $@ $(COBJS)
+# Object file rules depend on obj directory
+$(OBJDIR)/%.o: src/%.cpp | $(OBJDIR)
+    $(CXX) $(CFLAGS) -c -o $@ $<
 
-obj/%.o : src/%.c
-	$(CXX) $(CFLAGS) -c -o $@ $<
+$(OBJDIR)/%.o: src/%.c | $(OBJDIR)
+    $(CXX) $(CFLAGS) -c -o $@ $<
 
-obj/%.o : src/%.cpp
-	$(CXX) $(CFLAGS) -c -o $@ $<
-
-$(COBJS) : $(CHDRS)
+$(COBJS): $(CHDRS)
 
 clean:
-	-rm -f obj/* bin/* src/parseYY.cpp src/parseYY.hpp src/parseLEX.cpp
-
+    -rm -f $(OBJDIR)/* $(BINDIR)/* src/parseYY.cpp src/parseYY.hpp src/parseLEX.cpp
