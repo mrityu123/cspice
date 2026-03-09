@@ -23,29 +23,29 @@ all: $(BINDIR)/cspice
 
 # Ensure directories exist
 $(OBJDIR):
-  mkdir -p $(OBJDIR)
+	mkdir -p $(OBJDIR)
 
 $(BINDIR):
-  mkdir -p $(BINDIR)
+	mkdir -p $(BINDIR)
 
 src/parseLEX.cpp: src/parser.l src/parseYY.hpp
-  @echo "> lexing: $<"
-  @$(LEX) $(LEX_FLAG) -o$@ $<
+	@echo "> lexing: $<"
+	@$(LEX) $(LEX_FLAG) -o$@ $<
 
 src/parseYY.cpp src/parseYY.hpp: src/parser.y
-  @echo "> yaccing: $<"
-  @$(YACC) $(YACC_FLAG) -o parseYY.cpp $<
-  @mv parseYY.cpp src/parseYY.cpp
-  @mv parseYY.hpp src/parseYY.hpp
-  @ln -sf src/parseYY.hpp include/parseYY.hpp
+	@echo "> yaccing: $<"
+	@$(YACC) $(YACC_FLAG) -o parseYY.cpp $<
+	@mv parseYY.cpp src/parseYY.cpp
+	@mv parseYY.hpp src/parseYY.hpp
+	@ln -sf src/parseYY.hpp include/parseYY.hpp
 
 # Final link step depends on bin directory
 $(BINDIR)/cspice: $(COBJS) | $(BINDIR)
-  $(CXX) $(CFLAGS) -o $@ $(COBJS)
+	$(CXX) $(CFLAGS) -o $@ $(COBJS)
 
 # Object file rules depend on obj directory
 $(OBJDIR)/%.o: src/%.cpp | $(OBJDIR)
-  $(CXX) $(CFLAGS) -c -o $@ $<
+	$(CXX) $(CFLAGS) -c -o $@ $<
 
 $(OBJDIR)/%.o: src/%.c | $(OBJDIR)
   $(CXX) $(CFLAGS) -c -o $@ $<
