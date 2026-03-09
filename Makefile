@@ -5,7 +5,7 @@ YACC_FLAG = -d -p parse
 
 CXX       = g++
 #CFLAGS    = -g -Iinclude
-CFLAGS	 = -O3 -Iinclude -Wall
+CFLAGS	 = -O3 -Iinclude
 CSRCS     = $(wildcard src/*.cpp)
 CHDRS     = $(wildcard include/*.h)
 #COBJS     = $(addsuffix .o, $(basename $(CSRCS)))
