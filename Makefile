@@ -48,9 +48,9 @@ $(OBJDIR)/%.o: src/%.cpp | $(OBJDIR)
 	$(CXX) $(CFLAGS) -c -o $@ $<
 
 $(OBJDIR)/%.o: src/%.c | $(OBJDIR)
-  $(CXX) $(CFLAGS) -c -o $@ $<
+	$(CXX) $(CFLAGS) -c -o $@ $<
 
 $(COBJS): $(CHDRS)
 
 clean:
-  -rm -f $(OBJDIR)/* $(BINDIR)/* src/parseYY.cpp src/parseYY.hpp src/parseLEX.cpp
+	-rm -f $(OBJDIR)/* $(BINDIR)/* src/parseYY.cpp src/parseYY.hpp src/parseLEX.cpp
